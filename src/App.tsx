@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+const PokemonFinder = () => {
+  const [pokemonId, setPokemonId] = useState("");
+  const [pokemon, setPokemon] = useState<{
+    name: string;
+    image: string;
+  } | null>(null);
+  const [error, setError] = useState("");
+
+  const fetchPokemonById = async () => {
+    setError("");
+    const response = await fetch(
+      `https://pokeapi.co/api/v2/pokemon/${pokemonId}`
+    );
+    if (!response.ok) {
+      setError("ポケモンのデータが見つかりません。");
+      return;
+    }
+    const data = await response.json();
+    setPokemon({ name: data.name, image: data.sprites.front_default });
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="container">
+      <h1>ポケモンファインダー</h1>
+      <input
+        type="number"
+        value={pokemonId}
+        onChange={(e) => setPokemonId(e.target.value)}
+        placeholder="ポケモンのIDを入力"
+      />
+      <button onClick={fetchPokemonById}>ポケモンを見つける</button>
+      {error && <div>{error}</div>}
+      {pokemon && (
+        <div>
+          <h2>{pokemon.name}</h2>
+          <img
+            src={pokemon.image}
+            alt={pokemon.name}
+            style={{ width: 250, height: 250 }}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
-export default App
+export default PokemonFinder;
